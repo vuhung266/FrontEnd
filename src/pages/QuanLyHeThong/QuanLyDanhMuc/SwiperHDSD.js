@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, Popconfirm, Button, message } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Card, Popconfirm, Button, message, Space } from 'antd';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import * as menuServices from '~/services/menuService';
 import 'swiper/css';
@@ -28,17 +28,29 @@ const SwiperHDSD = ({ dataSlideHDSD, ...props }) => {
                 const randomNumber = Math.floor(Math.random() * 100);
                 return (
                     <SwiperSlide key={e.id}>
-                        Step: {e.step}
-                        <Popconfirm
-                            placement="top"
-                            title="Xóa nội dung"
-                            description="Bạn chắc muốn xóa step này chứ?"
-                            onConfirm={() => confirmDelete(e)}
-                            okText="Xác nhận xóa"
-                            cancelText="Không"
-                        >
-                            <Button shape="circle" icon={<DeleteOutlined />} size="small" />
-                        </Popconfirm>
+                        Stepssss: {e.step}
+                        <Space wrap>
+                            <Popconfirm
+                                placement="top"
+                                title="Xóa nội dung"
+                                description="Bạn chắc muốn xóa step này chứ?"
+                                onConfirm={() => confirmDelete(e)}
+                                okText="Xác nhận xóa"
+                                cancelText="Không"
+                            >
+                                <Button shape="circle" icon={<DeleteOutlined />} size="small" />
+                            </Popconfirm>
+                            <Popconfirm
+                                placement="top"
+                                title="Sửa nội dung"
+                                description="Bạn chắc muốn xóa step này chứ?"
+                                onConfirm={() => confirmDelete(e)}
+                                okText="Xác nhận xóa"
+                                cancelText="Không"
+                            >
+                                <Button shape="circle" icon={<EditOutlined />} size="small" />
+                            </Popconfirm>
+                        </Space>
                         <Card
                             hoverable
                             style={{ width: 240 }}

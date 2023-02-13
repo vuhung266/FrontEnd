@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./userSlice"
-import nhomQuyenReducer from "./nhomQuyenSlice"
+import ItemHDSDSlice from "./itemHDSDSlice"
 
 export default configureStore(
 	{
 		reducer: {
 			user: userReducer,
-			nhomquyen: nhomQuyenReducer,
+			nhomquyen: ItemHDSDSlice,
 		}
 	}
 )

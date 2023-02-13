@@ -29,6 +29,11 @@ const defaultMenus = {
                     name: 'Quản lý Danh mục',
                 },
                 {
+                    path: 'quan-ly-danh-muc/chi-tiet-danh-muc',
+                    name: 'Chi tiết danh mục',
+                    hideInMenu: true,
+                },
+                {
                     path: 'quan-ly-danh-muc/them-moi-danh-muc',
                     name: 'Thêm mới danh mục',
                     hideInMenu: true,

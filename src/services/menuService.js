@@ -10,7 +10,7 @@ export const getAllMenu = async () => {
         console.log(error);
     }
 };
-export const getMenu = async (data) => {
+export const getMenu = async () => {
     try {
         const res = await httpRequest.get(`http://localhost:4000/menus`);
         return res;
@@ -22,6 +22,16 @@ export const editMenu = async (data, id) => {
     try {
         const res = await httpRequest.put(`http://localhost:4000/menus/${id}`, data);
         return res;
+    } catch (error) {
+        console.log(error);
+    }
+};
+export const getAllHDSD = async () => {
+    try {
+        const res = await httpRequest.get('http://localhost:4000/detail_hdsd', {
+            params: {},
+        });
+        return res.data;
     } catch (error) {
         console.log(error);
     }
