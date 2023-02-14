@@ -3,16 +3,13 @@ import classNames from 'classnames/bind';
 import { Avatar, Dropdown, Form, Modal, Input, message, Typography, Space } from 'antd';
 import styles from './DefaultLayout.module.scss';
 import { PageContainer, ProLayout } from '@ant-design/pro-components';
-import {
-    SolutionOutlined,
-    UserOutlined,
-    KeyOutlined,
-    LogoutOutlined,
-} from '@ant-design/icons';
+import { SolutionOutlined, UserOutlined, KeyOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '~/assets/images/logo-light.svg';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useQuery } from 'react-query';
+import TreeMenu from './../../pages/QuanLyHeThong/ChiTietHDSD/TreeMenu'
 
 const cx = classNames.bind(styles);
 
@@ -91,13 +88,12 @@ const RightContent = ({ data }) => {
     return (
         <div>
             {contextHolder}
-			<Avatar icon={<UserOutlined />} />{' '}
+            <Avatar icon={<UserOutlined />} />{' '}
             <Dropdown menu={{ items }} placement="bottomRight">
                 <Typography.Link>
-                    <Space className='link-color-white'>{data.name} </Space>
+                    <Space className="link-color-white">{data.name} </Space>
                 </Typography.Link>
             </Dropdown>
-
             <Modal
                 open={isModalOpen}
                 maskClosable={true}
@@ -122,9 +118,42 @@ const RightContent = ({ data }) => {
     );
 };
 function DefaultLayout({ children, selected, pageTitle }) {
+	const { data } = useQuery(
+		'MenuData',
+		() => fetch('http://localhost:4000/menus').then((res) => res.json()),
+		{ refetchOnWindowFocus: false },
+	);
+	function convertToNestedArray(data) {
+        const result = [];
+        const map = {};
+		if(!data){
+			return
+		}
+        data.forEach((item) => {
+            map[item.id] = item;
+            item.children = [];
+        });
+
+        data.forEach((item) => {
+            const parent = map[item.pid];
+            if (parent) {
+                parent.children.push(item);
+            } else {
+                result.push(item);
+            }
+        });
+
+        return result;
+    }
+
+
+    const nestedData = convertToNestedArray(data); console.log(nestedData)
+
     const dataUser = useSelector((state) => state.user);
     const [userinfo, setUserinfo] = useState(dataUser);
-
+	function handleClick(data) {
+        console.log(data);
+    }
     const location = useLocation();
     return (
         <ProLayout
@@ -136,6 +165,7 @@ function DefaultLayout({ children, selected, pageTitle }) {
             location={location}
             route={defaultMenus}
             menuItemRender={(item, defaultDom) => <Link to={item.path}> {defaultDom} </Link>}
+			//menuRender = {()=>(<div><TreeMenu nestedData={nestedData} onClick={handleClick} /></div>)}
             layout="mix"
             logo={Logo}
             title="HDSD App"

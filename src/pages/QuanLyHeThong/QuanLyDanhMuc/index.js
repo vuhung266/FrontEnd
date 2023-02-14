@@ -84,26 +84,11 @@ const QuanLyDanhMuc = () => {
     const result = await menuServices.editMenu(e, initialValues.key);
     console.log(result);
   };
-  const addHDSD = async (e) => {
-    e.pid = selectedMenuHDSD.id
-    console.log(e);
-    await axios.post('http://localhost:4000/detail_hdsd', e);
-    // refetch()
-    // let dataFromDetailHDSD = GetAllItemsbyPid(e.pid); console.log(dataFromDetailHDSD);
-    // setDataSlideHDSD(dataFromDetailHDSD);
-    setReloadSwiper(true)
-  };
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsModalHDSDOpen(false);
   };
-  const confirmDeleteHDSD = (e) => {
 
-    let dataFromDetailHDSD = GetAllItemsbyPid(e.pid);
-    setDataSlideHDSD(dataFromDetailHDSD);
-    refetch()
-    console.log(dataFromDetailHDSD)
-  }
   useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [form, initialValues]);
@@ -302,28 +287,6 @@ const QuanLyDanhMuc = () => {
         </Row>
       </Modal>
       <SwiperHDSD dataSlideHDSD={selectedMenuHDSD} reloadSwiper={reloadSwiper} isModalHDSDOpen={isModalHDSDOpen} onCancel={handleCancel} />
-      {/* <Modal
-        forceRender
-        width={1000}
-        open={isModalHDSDOpen}
-        maskClosable={true}
-        onOk={() => {
-          formHDSD.validateFields()
-            .then((values) => {
-              form.resetFields();
-              addHDSD(values);
-            })
-            .catch((info) => {
-              console.log('Validate Failed:', info);
-            });
-        }}
-        onCancel={handleCancel}
-        okText="Lưu lại"
-        title={`Chi tiết ${selectedMenuHDSD.name}`}
-      > 
-        <SwiperHDSD dataSlideHDSD={selectedMenuHDSD} reloadSwiper={reloadSwiper} />
-        
-      </Modal> */}
     </>
   );
 };

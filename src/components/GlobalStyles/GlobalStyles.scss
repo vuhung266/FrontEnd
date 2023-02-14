@@ -139,16 +139,104 @@ body {
 .link-color-white:hover {
     color: #ccc;
 }
-tr.green {background-color: #eee; font-weight: 600;}
+tr.green {
+    background-color: #eee;
+    font-weight: 600;
+}
 .mainmenu ul li {
-	padding-left: 10px;
+    padding-left: 10px;
 }
 .mainmenu button {
-	cursor: pointer;
+    cursor: pointer;
 }
 .mainmenu button:hover {
-	color:#005dd6
+    color: #005dd6;
 }
-.pl-20 {padding-left: 20px;}
-.mycustomswiper {padding-bottom: 24px;}
-.color-primary {color:#005dd6}
+.pl-20 {
+    padding-left: 20px;
+}
+.mycustomswiper {
+	position: relative;
+    padding-bottom: 24px;
+	.swiper-pagination {
+		position: absolute;
+		top:320px;
+		z-index: 99;
+		width: 100%;
+		text-align: center;
+		.swiper-pagination-bullet {
+			margin: 3px;
+		}
+	}
+}
+.color-primary {
+    color: #005dd6;
+}
+.custom-step .ant-steps-item-title {
+    width: 100%;
+}
+.custom-step {
+    .ant-steps-item-description,
+    .ant-steps-item-title {
+        color: #000 !important;
+    }
+    .ant-steps-item-icon {
+        background-color: #147aff !important;
+    }
+    .ant-steps-icon {
+        color: #fff !important;
+    }
+}
+.demo-view-img {
+    overflow: hidden;
+	margin-bottom: 50px;
+    img {
+        height: 300px;
+		width: 200px;
+        max-height: 300px;
+    }
+}
+.demo-view-desc {
+    text-align: left;
+    font-size: 14px;
+}
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+
+    /* Center slide text vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.swiper-pagination-bullet {
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+    color: #000;
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    border-radius: 50%;
+}
+
+.swiper-pagination-bullet-active {
+    color: #fff;
+    background: #007aff;
+}
+.tox-statusbar__branding {display: none;}

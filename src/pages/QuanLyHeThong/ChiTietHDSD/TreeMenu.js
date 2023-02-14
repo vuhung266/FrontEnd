@@ -4,7 +4,7 @@ function renderTree( nestedData, onClick ) {
     return (
         <ul>
             {nestedData.map((item) => (
-                <li key={item.order}>
+                <li key={item.id}>
                     {item.children.length === 0 ? (
                         <button onClick={() => onClick(item)}>{`${item.order} - ${item.name}`}</button>
                     ) : (

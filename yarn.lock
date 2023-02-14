@@ -2046,6 +2046,14 @@
   dependencies:
     "@babel/runtime" "^7.12.5"
 
+"@tinymce/tinymce-react@^4.3.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-react/-/tinymce-react-4.3.0.tgz#5e2f5a58526a1bba9710f54f5fcf16abd4c742a1"
+  integrity sha512-iB4cUsYfcJL4NGuKhqCGYuTmFTje3nPxyPv1HxprTsp/YMGuuiiSNWrv3zwI31QX5Cn8qeq9MrMDnbxuRugHyg==
+  dependencies:
+    prop-types "^15.6.2"
+    tinymce "^6.3.1"
+
 "@tippyjs/react@^4.2.6":
   version "4.2.6"
   resolved "https://registry.npmjs.org/@tippyjs/react/-/react-4.2.6.tgz"
@@ -7653,7 +7661,7 @@ prompts@^2.0.1, prompts@^2.4.2:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.5.10, prop-types@^15.5.7, prop-types@^15.8.1:
+prop-types@^15.5.10, prop-types@^15.5.7, prop-types@^15.6.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -9324,6 +9332,11 @@ tinycolor2@^1.4.2:
   version "1.5.2"
   resolved "https://registry.npmjs.org/tinycolor2/-/tinycolor2-1.5.2.tgz"
   integrity sha512-h80m9GPFGbcLzZByXlNSEhp1gf8Dy+VX/2JCGUZsWLo7lV1mnE/XlxGYgRBoMLJh1lIDXP0EMC4RPTjlRaV+Bg==
+
+tinymce@^6.3.1:
+  version "6.3.1"
+  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-6.3.1.tgz#cc5cf2b9f702d429cf5d1d21ed62245d768bfc4f"
+  integrity sha512-+oCwXuTxAdJXVJ0130OxQz0JDNsqg3deuzgeUo8X5Vb27EzCJgXwO5eWvCxvkxpQo4oiHMVlM4tUIpTUHufHGQ==
 
 tippy.js@^6.3.1:
   version "6.3.7"
