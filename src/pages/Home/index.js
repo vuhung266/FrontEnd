@@ -17,11 +17,6 @@ const Home = () => {
             }),
         );
     };
-    const handleClick1 = () => {
-        setTree(
-            {tire: false}
-        );
-    };
 
     useEffect(() => {
         const fetchData = async () => {

@@ -1,7 +1,5 @@
 import PropTypes from 'prop-types';
-import classNames from 'classnames/bind';
 import { Avatar, Dropdown, Form, Modal, Input, message, Typography, Space } from 'antd';
-import styles from './DefaultLayout.module.scss';
 import { PageContainer, ProLayout } from '@ant-design/pro-components';
 import { SolutionOutlined, UserOutlined, KeyOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
@@ -9,9 +7,6 @@ import Logo from '~/assets/images/logo-light.svg';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from 'react-query';
-import TreeMenu from './../../pages/QuanLyHeThong/ChiTietHDSD/TreeMenu'
-
-const cx = classNames.bind(styles);
 
 const defaultMenus = {
     path: '/',
@@ -151,9 +146,6 @@ function DefaultLayout({ children, selected, pageTitle }) {
 
     const dataUser = useSelector((state) => state.user);
     const [userinfo, setUserinfo] = useState(dataUser);
-	function handleClick(data) {
-        console.log(data);
-    }
     const location = useLocation();
     return (
         <ProLayout
@@ -165,7 +157,6 @@ function DefaultLayout({ children, selected, pageTitle }) {
             location={location}
             route={defaultMenus}
             menuItemRender={(item, defaultDom) => <Link to={item.path}> {defaultDom} </Link>}
-			//menuRender = {()=>(<div><TreeMenu nestedData={nestedData} onClick={handleClick} /></div>)}
             layout="mix"
             logo={Logo}
             title="HDSD App"
@@ -176,7 +167,7 @@ function DefaultLayout({ children, selected, pageTitle }) {
             headerTitleRender={(logo, title, _) => {
                 const defaultDom = (
                     <Link to="/">
-                        <img src={Logo} />
+                        <img alt="logo" src={Logo} />
                         {title}
                     </Link>
                 );
