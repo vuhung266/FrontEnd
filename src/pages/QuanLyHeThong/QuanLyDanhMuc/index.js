@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Row, Col, Space, Table, Tooltip, Select, Modal, message, Form, Popconfirm, Drawer } from 'antd';
+import { Button, Input, Row, Col, Space, Table, Tooltip, Select, Modal, message, Form, Popconfirm, Drawer, TreeSelect } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusCircleOutlined, PlusOutlined, FileDoneOutlined } from '@ant-design/icons';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import * as menuServices from '~/services/menuService';
 import AddStepToHDSD from './AddStepToHDSD';
 import axios from 'axios';
 
 const QuanLyDanhMuc = () => {
+    const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [open, setOpen] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
@@ -18,36 +19,49 @@ const QuanLyDanhMuc = () => {
     const [dataPids, setDataPids] = useState([]);
     const [selectedMenuHDSD, setSelectedMenuHDSD] = useState([]);
     const [initialValues, setInitialValues] = useState([]);
-    const { data, refetch } = useQuery(
-        'HDSDData',
-        () => fetch('http://localhost:4000/detail_hdsd').then((res) => res.json()),
-        { refetchOnWindowFocus: false },
-    );
+
+    const menuData = useQuery('MenuData', () => fetch('http://localhost:4000/menus').then((res) => res.json()), {
+        refetchOnWindowFocus: false,
+    });
+    const Rest2 = useQuery('HDSDData', () => fetch('http://localhost:4000/detail_hdsd').then((res) => res.json()), {
+        refetchOnWindowFocus: false,
+    });
+
     const onClose = () => {
         setOpen(false);
     };
     const fetchMenuItems = async () => {
-        const result = await menuServices.getMenu();
-        const resultArray = result.map((obj) => {
+        //const result = await menuServices.getMenu();
+        const resultArray = menuData.data?.map((obj) => {
             obj.key = obj.id;
+            obj.value = obj.id;
             obj.label = obj.name;
+            obj.title = obj.name;
             return obj;
         });
         setDataMenu(resultArray);
     };
     useEffect(() => {
-        if (sendRequest) {
-            setSendRequest(false);
-        }
         fetchMenuItems();
-    }, [sendRequest]);
+        form.setFieldsValue(initialValues);
+    }, [form, initialValues]);
+	useEffect(() => {
+        if (menuData.data) {
+            fetchMenuItems();
+        }
+    }, [menuData.data]);
 
-    const nestedData = convertToNestedArray(dataMenu); // chuyển thành array tree
+    let nestedData = [];
+    if (dataMenu) {
+        nestedData = convertToNestedArray(dataMenu); // chuyển thành array tree
+		nestedData.sort((a, b) => a.order - b.order); // sắp xếp thứ tự tăng dần theo order
+    }
+
     function convertToNestedArray(dataMenu) {
         const result = [];
         const map = {};
 
-        dataMenu.forEach((item) => {
+        dataMenu?.forEach((item) => {
             map[item.id] = item;
             item.children = [];
         });
@@ -69,35 +83,54 @@ const QuanLyDanhMuc = () => {
             createPost(values);
             setIsAddNew(false);
         } else {
-            sendEditData(values);
+            updateMenuData.mutate(values);
         }
-        setSendRequest(true);
-        setIsModalOpen(false);
     };
+
+    const updateMenuData = useMutation(
+        (updatedMenuData) => {
+            return fetch(`http://localhost:4000/menus/${initialValues.key}`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedMenuData),
+            }).then((res) => res.json());
+        },
+        {
+            onSuccess: (updatedData) => {
+                setIsModalOpen(false);
+                queryClient.invalidateQueries('MenuData');
+                fetchMenuItems();
+            },
+        },
+    );
+    
     async function createPost(data) {
         const response = await axios.post('http://localhost:4000/menus', data);
         console.log(response.data);
     }
-    const sendEditData = async (e) => {
-        const result = await menuServices.editMenu(e, initialValues.key);
-        console.log(result);
-    };
+
     const handleCancel = () => {
         setIsModalOpen(false);
     };
-
-    useEffect(() => {
-        form.setFieldsValue(initialValues);
-    }, [form, initialValues]);
+    const makeDropParents = (e) => {
+        const filteredArray = dataMenu.filter((obj) => obj.key !== e.key); // bỏ item có id cần sửa khỏi drop Pid
+        const resultArray = filteredArray.map((obj) => {
+            obj.key = obj.id;
+            obj.value = obj.id;
+            obj.label = obj.name;
+            return obj;
+        });
+        resultArray.unshift({ key: 0, value: 0, label: 'Là thư mục gốc' });
+        setDataPids(resultArray);
+        console.log(dataPids);
+    };
     const openEditModal = (e) => {
         setIsAddNew(false);
         setInitialValues(e);
         setIsModalOpen(true);
-        setSendRequest(true);
-        const filteredArray = dataMenu.filter((obj) => obj.key !== e.key); // bỏ item có id cần sửa khỏi drop Pid
-        filteredArray.unshift({ key: 0, value: 0, label: 'Là thư mục gốc' });
-        setDataPids(filteredArray);
-        setDataMenu(dataMenu);
+        makeDropParents(e);
     };
     const openAddChildModal = (e) => {
         console.log(e);
@@ -126,12 +159,12 @@ const QuanLyDanhMuc = () => {
                     e.name
                 ),
         },
-		{
+        {
             title: 'Thứ tự',
             dataIndex: 'order',
             key: 'order',
         },
-		{
+        {
             title: 'ID',
             dataIndex: 'key',
             key: 'key',
@@ -230,20 +263,27 @@ const QuanLyDanhMuc = () => {
                             <Button type="primary" icon={<PlusCircleOutlined />} onClick={addNewMenu}>
                                 Thêm mới danh mục
                             </Button>
-                            <Button type="dashed" danger icon={<FileDoneOutlined />} onClick={handleDownloadClick} style={{marginLeft:'auto', float:'right'}}>
+                            <Button
+                                type="dashed"
+                                danger
+                                icon={<FileDoneOutlined />}
+                                onClick={handleDownloadClick}
+                                style={{ marginLeft: 'auto', float: 'right' }}
+                            >
                                 Xuất file json
                             </Button>
                         </Col>
                         <Col span={24}>
                             <Table
-								key={nestedData.key}
-								expandRowByClick= {true}
+                                key={nestedData.key}
+                                //expandRowByClick= {true}
                                 columns={columns}
                                 dataSource={nestedData}
                                 pagination={false}
                                 size="small"
                                 rowClassName={(record, index) => (record.pid === 0 ? 'green' : null)}
                             />
+                            <p style={{ height: '100px' }}></p>
                         </Col>
                     </Row>
                 </Col>
@@ -283,9 +323,21 @@ const QuanLyDanhMuc = () => {
                             <Form.Item label="Thứ tự" name="order" required={true}>
                                 <Input />
                             </Form.Item>
-                            <Form.Item label="Thư mục cha" name="pid" required={true}>
+                            {/* <Form.Item label="Thư mục cha" name="pid" required={true}>
                                 <Select showSearch allowClear options={dataPids} />
-                            </Form.Item>
+                            </Form.Item> */}
+							<Form.Item label="Thư mục cha" name="pid" required={true}>
+								<TreeSelect
+									showSearch
+									dropdownStyle={{ maxHeight: 400, overflow: 'auto', minWidth: 300 }}
+									placeholder="Please select"
+									dropdownMatchSelectWidth={true}
+									placement='bottomLeft'
+									allowClear
+									treeDefaultExpandAll
+									treeData={nestedData}
+								/>
+							</Form.Item>
                         </Form>
                     </Col>
                 </Row>

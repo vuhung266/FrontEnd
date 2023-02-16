@@ -1,22 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import produce from 'immer';
 const aa = {
-	tire: true,
-	aaaa: 'aaaa',
+    tire: true,
+    aaaa: 'aaaa',
 };
 const Home = () => {
-    
     const [data, setData] = useState(null);
-    const [tree, setTree] = useState(aa);
 
-    const handleClick = () => {
-        setTree(
-            produce((draft) => {
-                draft.tire = false;
-            }),
-        );
-    };
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        inputRef.current.focus();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -29,12 +25,11 @@ const Home = () => {
         };
 
         fetchData();
-    }, [tree]);
-    console.log(tree);
+    }, []);
 
     return (
         <div>
-            <button onClick={handleClick}>abc</button>
+            <input id="myInput" type="text" ref={inputRef} />
             {data ? <p>{JSON.stringify(data)}</p> : <p>Loading...</p>}
         </div>
     );

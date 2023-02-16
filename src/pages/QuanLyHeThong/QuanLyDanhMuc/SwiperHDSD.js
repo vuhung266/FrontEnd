@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Popconfirm, Button, message, Space } from 'antd';
+import { Card, Popconfirm, Button, message, Space, Affix } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import * as menuServices from '~/services/menuService';
@@ -27,6 +27,7 @@ const SwiperHDSD = ({ dataSlideHDSD, ...props }) => {
             {dataSlideHDSD.map((e) => {
                 const randomNumber = Math.floor(Math.random() * 100);
                 return (
+					<Affix offsetTop={320} onChange={(affixed) => console.log(affixed)}>aaaa
                     <SwiperSlide key={e.id}>
                         Stepssss: {e.step}
                         <Space wrap>
@@ -59,6 +60,7 @@ const SwiperHDSD = ({ dataSlideHDSD, ...props }) => {
                             <Meta title={e.name} description={e.desc} />
                         </Card>
                     </SwiperSlide>
+					</Affix>
                 );
             })}
         </Swiper>

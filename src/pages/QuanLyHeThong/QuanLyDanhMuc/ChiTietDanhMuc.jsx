@@ -12,7 +12,7 @@ import {
     message,
     Modal,
     Space,
-    Badge,
+    Affix,
     Steps,
     Divider,
     Tooltip,
@@ -124,7 +124,8 @@ const QuanLyChiTietDanhMuc = () => {
                         items={result.map((e) => ({
                             title: (
                                 <>
-                                    Step: {e.step}
+                                    <p>Step: {e.step}</p>
+									<h4>{e.name}</h4>
                                     <Space.Compact style={{ marginLeft: 'auto', float: 'right' }}>
                                         <Popconfirm
                                             placement="top"

@@ -6,7 +6,6 @@ import { Link, useLocation } from 'react-router-dom';
 import Logo from '~/assets/images/logo-light.svg';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useQuery } from 'react-query';
 
 const defaultMenus = {
     path: '/',
@@ -113,36 +112,6 @@ const RightContent = ({ data }) => {
     );
 };
 function DefaultLayout({ children, selected, pageTitle }) {
-	const { data } = useQuery(
-		'MenuData',
-		() => fetch('http://localhost:4000/menus').then((res) => res.json()),
-		{ refetchOnWindowFocus: false },
-	);
-	function convertToNestedArray(data) {
-        const result = [];
-        const map = {};
-		if(!data){
-			return
-		}
-        data.forEach((item) => {
-            map[item.id] = item;
-            item.children = [];
-        });
-
-        data.forEach((item) => {
-            const parent = map[item.pid];
-            if (parent) {
-                parent.children.push(item);
-            } else {
-                result.push(item);
-            }
-        });
-
-        return result;
-    }
-
-
-    const nestedData = convertToNestedArray(data); console.log(nestedData)
 
     const dataUser = useSelector((state) => state.user);
     const [userinfo, setUserinfo] = useState(dataUser);

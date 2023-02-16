@@ -11,10 +11,10 @@ import {
     message,
     Modal,
     Space,
-    Badge,
     Steps,
     Divider,
     Tooltip,
+    Affix,
 } from 'antd';
 import { DeleteOutlined, PlusCircleOutlined, EditOutlined } from '@ant-design/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -24,7 +24,6 @@ import axios from 'axios';
 import { Pagination } from 'swiper';
 import 'swiper/css';
 const { Meta } = Card;
-const { TextArea } = Input;
 const AddStepToHDSD = ({ ...props }) => {
     const { pid } = props;
     const editorRef = useRef(null);
@@ -33,8 +32,8 @@ const AddStepToHDSD = ({ ...props }) => {
     const [sendRequest, setSendRequest] = useState(false);
     const [formHDSD] = Form.useForm();
     const [initialValuesHDSD, setinitialValuesHDSD] = useState([]);
-	const [value, setValue] = useState('<p>The quick brown fox jumps over the lazy dog</p>');
-	const [text, setText] = useState('');
+    const [value, setValue] = useState('<p>The quick brown fox jumps over the lazy dog</p>');
+    const [text, setText] = useState('');
 
     const { data, refetch } = useQuery(
         'HDSDData',
@@ -49,9 +48,12 @@ const AddStepToHDSD = ({ ...props }) => {
     };
 
     let result = GetAllItemsbyPid(pid, data);
+    const inputRef = useRef(null);
     useEffect(() => {
+        inputRef.current.focus();
         formHDSD.setFieldsValue(initialValuesHDSD);
     }, [formHDSD, initialValuesHDSD]);
+
     const confirmDelete = (e) => {
         deleteMenuItem(e.id);
         refetch();
@@ -90,6 +92,7 @@ const AddStepToHDSD = ({ ...props }) => {
     };
     async function createPost(data) {
         data.pid = pid;
+        data.desc = editorRef.current.getContent();
         const response = await axios.post('http://localhost:4000/detail_hdsd', data);
         refetch();
         console.log(response.data);
@@ -104,6 +107,7 @@ const AddStepToHDSD = ({ ...props }) => {
             return '<span class="' + className + '">' + (index + 1) + '</span>';
         },
     };
+
     return (
         <>
             <Divider />
@@ -122,8 +126,9 @@ const AddStepToHDSD = ({ ...props }) => {
                         items={result.map((e) => ({
                             title: (
                                 <>
-                                    Step: {e.step}
-                                    <Space.Compact style={{ marginLeft: 'auto', float: 'right' }}>
+                                    <p>Step: {e.step}</p>
+                                    <h4>{e.name}</h4>
+                                    <Space.Compact className="button-area">
                                         <Popconfirm
                                             placement="top"
                                             title="Xóa nội dung"
@@ -149,47 +154,49 @@ const AddStepToHDSD = ({ ...props }) => {
                     />
                 </Col>
                 <Col span={12}>
-                    <Row gutter={[16, 16]}>
-                        <Col span={24}>
-                            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                                <Card title="Demo kết quả">
-                                    {result.length > 0 ? (
-                                        <Swiper
-                                            navigation
-                                            pagination={pagination}
-                                            modules={[Pagination]}
-                                            spaceBetween={20}
-                                            slidesPerView={1}
-                                            className="mycustomswiper"
-                                        >
-                                            {result?.map((e) => {
-                                                const randomNumber = Math.floor(Math.random() * 100);
-                                                return (
-                                                    <SwiperSlide key={e.id}>
-                                                        <div>
-                                                            <div className="demo-view-img">
-                                                                <img
-                                                                    alt="example"
-                                                                    src={`https://picsum.photos/240/300?random=${randomNumber}`}
+                    <Affix offsetTop={120} onChange={(affixed) => console.log(affixed)}>
+                        <Row gutter={[16, 16]}>
+                            <Col span={24}>
+                                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                                    <Card title="Demo kết quả">
+                                        {result.length > 0 ? (
+                                            <Swiper
+                                                navigation
+                                                pagination={pagination}
+                                                modules={[Pagination]}
+                                                spaceBetween={20}
+                                                slidesPerView={1}
+                                                className="mycustomswiper"
+                                            >
+                                                {result?.map((e) => {
+                                                    const randomNumber = Math.floor(Math.random() * 100);
+                                                    return (
+                                                        <SwiperSlide key={e.id}>
+                                                            <div>
+                                                                <div className="demo-view-img">
+                                                                    <img
+                                                                        alt="example"
+                                                                        src={`https://picsum.photos/240/300?random=${randomNumber}`}
+                                                                    />
+                                                                </div>
+                                                                <p>{e.name}</p>
+                                                                <div
+                                                                    className="demo-view-desc"
+                                                                    dangerouslySetInnerHTML={{ __html: e.desc }}
                                                                 />
                                                             </div>
-                                                            <p>{e.name}</p>
-                                                            <div
-                                                                className="demo-view-desc"
-                                                                dangerouslySetInnerHTML={{ __html: e.desc }}
-                                                            />
-                                                        </div>
-                                                    </SwiperSlide>
-                                                );
-                                            })}
-                                        </Swiper>
-                                    ) : (
-                                        <p>Chưa có dữ liệu</p>
-                                    )}
-                                </Card>
-                            </Space>
-                        </Col>
-                    </Row>
+                                                        </SwiperSlide>
+                                                    );
+                                                })}
+                                            </Swiper>
+                                        ) : (
+                                            <p>Chưa có dữ liệu</p>
+                                        )}
+                                    </Card>
+                                </Space>
+                            </Col>
+                        </Row>
+                    </Affix>
                 </Col>
             </Row>
             <Modal
@@ -227,11 +234,8 @@ const AddStepToHDSD = ({ ...props }) => {
                                 <Input />
                             </Form.Item>
                             <Form.Item label="Tên" name="name" required={true}>
-                                <Input />
+                                <Input ref={inputRef} />
                             </Form.Item>
-                            {/* <Form.Item label="Mô tả" name="desc" required={true}>
-                                <TextArea />
-                            </Form.Item> */}
                             <Form.Item label="Mô tả" name="desc">
                                 <Editor
                                     apiKey="mn91e4l4u8nhtjz09fcrbsrtld9x9gb38zzjdol76hrxo623"
