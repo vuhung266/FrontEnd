@@ -1,24 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Row, Col, Space, Table, Tooltip, Select, Modal, message, Form, Popconfirm, Drawer, TreeSelect } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusCircleOutlined, PlusOutlined, FileDoneOutlined } from '@ant-design/icons';
+import {
+    Button,
+    Input,
+    Row,
+    Col,
+    Space,
+    Table,
+    Tooltip,
+    Modal,
+    message,
+    Form,
+    Popconfirm,
+    Drawer,
+    TreeSelect,
+} from 'antd';
+import {
+    EditOutlined,
+    DeleteOutlined,
+    PlusCircleOutlined,
+    PlusOutlined,
+    FileDoneOutlined,
+    FileTextOutlined,
+} from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import * as menuServices from '~/services/menuService';
 import AddStepToHDSD from './AddStepToHDSD';
 import axios from 'axios';
-
+let nestedData = [];
 const QuanLyDanhMuc = () => {
+	const [form] = Form.useForm();
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [open, setOpen] = useState(false);
-    const [messageApi, contextHolder] = message.useMessage();
-    const [form] = Form.useForm();
+    const [listPid, setListPid] = useState([]);// data pid
+    const [currentPid, setCurrentPid] = useState(0); // pid set selected trong modal add & edit
     const [isAddNew, setIsAddNew] = useState(false);
-    const [sendRequest, setSendRequest] = useState(false);
     const [dataMenu, setDataMenu] = useState([]);
-    const [dataPids, setDataPids] = useState([]);
     const [selectedMenuHDSD, setSelectedMenuHDSD] = useState([]);
     const [initialValues, setInitialValues] = useState([]);
+    const [expanKeys, setExpanKeys] = useState(null);
 
     const menuData = useQuery('MenuData', () => fetch('http://localhost:4000/menus').then((res) => res.json()), {
         refetchOnWindowFocus: false,
@@ -41,22 +61,34 @@ const QuanLyDanhMuc = () => {
         });
         setDataMenu(resultArray);
     };
+    // useEffect(() => {
+    //     fetchMenuItems();
+    //     form.setFieldsValue(initialValues);
+    // }, [form, initialValues]);
     useEffect(() => {
-        fetchMenuItems();
-        form.setFieldsValue(initialValues);
-    }, [form, initialValues]);
-	useEffect(() => {
         if (menuData.data) {
             fetchMenuItems();
         }
     }, [menuData.data]);
 
-    let nestedData = [];
     if (dataMenu) {
         nestedData = convertToNestedArray(dataMenu); // chuyển thành array tree
-		nestedData.sort((a, b) => a.order - b.order); // sắp xếp thứ tự tăng dần theo order
+        if (nestedData) {
+            nestedData.sort((a, b) => a.order - b.order);
+            nestedData.forEach((item) => {
+                if (item.children) {
+                    item.children.sort((a, b) => a.order - b.order);
+                }
+            });
+        }
+        nestedData = JSON.parse(
+            JSON.stringify(nestedData, (key, value) => {
+                if (key === 'children' && JSON.stringify(value) === '[]') return undefined;
+                return value;
+            }),
+        );
+        console.log('load data', nestedData);
     }
-
     function convertToNestedArray(dataMenu) {
         const result = [];
         const map = {};
@@ -78,19 +110,42 @@ const QuanLyDanhMuc = () => {
         return result;
     }
 
+    // function convertToNestedArray(dataMenu) {
+    //     const result = [];
+    //     const map = {};
+
+    //     dataMenu.forEach((item) => {
+    //         map[item.id] = item;
+    //     });
+
+    //     dataMenu.forEach((item) => {
+    //         const parent = map[item.pid];
+    //         if (parent) {
+    //             if (!parent.children) {
+    //                 parent.children = [];
+    //             }
+    //             parent.children.push(item);
+    //         } else {
+    //             result.push(item);
+    //         }
+    //     });
+
+    //     return result;
+    // }
+
     const onCreate = (values) => {
         if (isAddNew) {
-            createPost(values);
+            //createPost(values);
+            addMenuData.mutate(values);
             setIsAddNew(false);
         } else {
             updateMenuData.mutate(values);
         }
     };
-
-    const updateMenuData = useMutation(
+    const addMenuData = useMutation(
         (updatedMenuData) => {
-            return fetch(`http://localhost:4000/menus/${initialValues.key}`, {
-                method: "PUT",
+            return fetch(`http://localhost:4000/menus`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -105,12 +160,24 @@ const QuanLyDanhMuc = () => {
             },
         },
     );
-    
-    async function createPost(data) {
-        const response = await axios.post('http://localhost:4000/menus', data);
-        console.log(response.data);
-    }
-
+    const updateMenuData = useMutation(
+        (updatedMenuData) => {
+            return fetch(`http://localhost:4000/menus/${initialValues.key}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedMenuData),
+            }).then((res) => res.json());
+        },
+        {
+            onSuccess: (updatedData) => {
+                setIsModalOpen(false);
+                queryClient.invalidateQueries('MenuData');
+                fetchMenuItems();
+            },
+        },
+    );
     const handleCancel = () => {
         setIsModalOpen(false);
     };
@@ -123,8 +190,6 @@ const QuanLyDanhMuc = () => {
             return obj;
         });
         resultArray.unshift({ key: 0, value: 0, label: 'Là thư mục gốc' });
-        setDataPids(resultArray);
-        console.log(dataPids);
     };
     const openEditModal = (e) => {
         setIsAddNew(false);
@@ -133,14 +198,12 @@ const QuanLyDanhMuc = () => {
         makeDropParents(e);
     };
     const openAddChildModal = (e) => {
-        console.log(e);
+        console.log('item vừa chọn: ', e);
         setIsAddNew(true);
-        setInitialValues({ key: e.key, label: e.label, name: '', order: '', pid: e.key, value: e.key });
+		setCurrentPid(e.id); console.log(currentPid)
+       // setInitialValues({ key: e.key, label: e.label, name: e.name, title: e.name, order: 1, pid: e.id, value: e.id });
         setIsModalOpen(true);
-        setSendRequest(true);
-        dataMenu.unshift({ key: 0, value: 0, label: 'Là thư mục gốc' });
-        setDataPids(dataMenu);
-        setDataMenu(dataMenu);
+       // dataMenu.unshift({ key: 0, value: 0, label: 'Là thư mục gốc' });
     };
     const openAddHDSDModal = (e) => {
         setSelectedMenuHDSD(e);
@@ -151,10 +214,12 @@ const QuanLyDanhMuc = () => {
         {
             title: `Tên danh mục`,
             render: (e) =>
-                e.children.length === 0 ? (
-                    <Link className="color-primary" to={`../quan-ly-he-thong/chi-tiet-danh-muc/${e.id}`}>
-                        {e.name}
-                    </Link>
+                !e.children ? (
+                    <>
+                        <Link className="color-primary" to={`../quan-ly-he-thong/chi-tiet-danh-muc/${e.id}`}>
+                            <FileTextOutlined /> {e.name}
+                        </Link>
+                    </>
                 ) : (
                     e.name
                 ),
@@ -206,7 +271,7 @@ const QuanLyDanhMuc = () => {
                                 size="small"
                             />
                         </Tooltip>
-                        {e.children.length === 0 ? (
+                        {!e.children ? (
                             <Tooltip title="Nhập các bước HDSD">
                                 <Button
                                     type="primary"
@@ -232,7 +297,6 @@ const QuanLyDanhMuc = () => {
     };
     async function deleteMenuItem(id) {
         await axios.delete(`http://localhost:4000/menus/${id}`);
-        setSendRequest(true);
     }
     const addNewMenu = () => {
         setInitialValues({ key: '', label: '', name: '', order: '', pid: 0, value: '' });
@@ -254,14 +318,21 @@ const QuanLyDanhMuc = () => {
     }
     return (
         <>
-            {contextHolder}
-            {/* <TreeMenu nestedData= {nestedData} /> */}
             <Row gutter={[16, 32]}>
                 <Col span={24}>
                     <Row gutter={[16, 16]}>
                         <Col span={24}>
                             <Button type="primary" icon={<PlusCircleOutlined />} onClick={addNewMenu}>
                                 Thêm mới danh mục
+                            </Button>
+                            <Button
+                                type="primary"
+                                icon={<PlusCircleOutlined />}
+                                onClick={() => {
+                                    setExpanKeys([]);
+                                }}
+                            >
+                                Đóng tất cả
                             </Button>
                             <Button
                                 type="dashed"
@@ -275,7 +346,9 @@ const QuanLyDanhMuc = () => {
                         </Col>
                         <Col span={24}>
                             <Table
+                                bordered
                                 key={nestedData.key}
+                                ExpandedRowKeys={expanKeys}
                                 //expandRowByClick= {true}
                                 columns={columns}
                                 dataSource={nestedData}
@@ -321,23 +394,20 @@ const QuanLyDanhMuc = () => {
                                 <Input />
                             </Form.Item>
                             <Form.Item label="Thứ tự" name="order" required={true}>
-                                <Input />
+                                <Input type="number" />
                             </Form.Item>
-                            {/* <Form.Item label="Thư mục cha" name="pid" required={true}>
-                                <Select showSearch allowClear options={dataPids} />
-                            </Form.Item> */}
-							<Form.Item label="Thư mục cha" name="pid" required={true}>
-								<TreeSelect
-									showSearch
-									dropdownStyle={{ maxHeight: 400, overflow: 'auto', minWidth: 300 }}
-									placeholder="Please select"
-									dropdownMatchSelectWidth={true}
-									placement='bottomLeft'
-									allowClear
-									treeDefaultExpandAll
-									treeData={nestedData}
-								/>
-							</Form.Item>
+                            <Form.Item label="Thư mục cha" name="pid" required={true}>
+                                <TreeSelect
+                                    showSearch
+                                    placeholder="Please select"
+                                    dropdownMatchSelectWidth={true}
+                                    allowClear
+                                    treeDefaultExpandAll
+                                    treeData={nestedData}
+									value={['55']}
+									onChange={(value) => console.log('Selected:', value)}
+                                />
+                            </Form.Item>
                         </Form>
                     </Col>
                 </Row>

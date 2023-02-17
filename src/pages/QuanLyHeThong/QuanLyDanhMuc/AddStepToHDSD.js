@@ -23,7 +23,6 @@ import { useQuery } from 'react-query';
 import axios from 'axios';
 import { Pagination } from 'swiper';
 import 'swiper/css';
-const { Meta } = Card;
 const AddStepToHDSD = ({ ...props }) => {
     const { pid } = props;
     const editorRef = useRef(null);
@@ -34,6 +33,7 @@ const AddStepToHDSD = ({ ...props }) => {
     const [initialValuesHDSD, setinitialValuesHDSD] = useState([]);
     const [value, setValue] = useState('<p>The quick brown fox jumps over the lazy dog</p>');
     const [text, setText] = useState('');
+    const inputRef = useRef(null);
 
     const { data, refetch } = useQuery(
         'HDSDData',
@@ -48,9 +48,8 @@ const AddStepToHDSD = ({ ...props }) => {
     };
 
     let result = GetAllItemsbyPid(pid, data);
-    const inputRef = useRef(null);
+
     useEffect(() => {
-        inputRef.current.focus();
         formHDSD.setFieldsValue(initialValuesHDSD);
     }, [formHDSD, initialValuesHDSD]);
 
@@ -62,7 +61,7 @@ const AddStepToHDSD = ({ ...props }) => {
         await menuServices.deleteItemHDSD(id);
         message.info(`Xóa thành công`);
     }
-    const editHDSD = async (e) => {
+    const editHDSD = async (e) => {console.log('open edit')
         setIsModalOpen(true);
         setIsAddNew(false);
         setinitialValuesHDSD(e);
@@ -107,18 +106,18 @@ const AddStepToHDSD = ({ ...props }) => {
             return '<span class="' + className + '">' + (index + 1) + '</span>';
         },
     };
-
+	const sharedProps = {
+		style: {
+		  width: '100%',
+		},
+		defaultValue: 'Ant Design love you!',
+		ref: inputRef,
+	  };
     return (
         <>
             <Divider />
             <Row gutter={[16, 32]}>
                 <Col span={12}>
-                    <div>
-                        <Button type="primary" icon={<PlusCircleOutlined />} onClick={OpenModalAddForm}>
-                            Thêm step mới
-                        </Button>
-                    </div>
-                    <Divider />
                     <Steps
                         className="custom-step"
                         direction="vertical"
@@ -152,6 +151,11 @@ const AddStepToHDSD = ({ ...props }) => {
                             ),
                         }))}
                     />
+					<div>
+                        <Button type="primary" icon={<PlusCircleOutlined />} onClick={OpenModalAddForm}>
+                            Thêm step mới
+                        </Button>
+                    </div>
                 </Col>
                 <Col span={12}>
                     <Affix offsetTop={120} onChange={(affixed) => console.log(affixed)}>
@@ -228,16 +232,17 @@ const AddStepToHDSD = ({ ...props }) => {
                             labelAlign="left"
                         >
                             <Form.Item label="Step" name="step" required={true}>
-                                <Input />
+                                <Input type="number" />
                             </Form.Item>
                             <Form.Item label="Link ảnh" name="img" required={true}>
                                 <Input />
                             </Form.Item>
                             <Form.Item label="Tên" name="name" required={true}>
-                                <Input ref={inputRef} />
+                                <Input />
                             </Form.Item>
                             <Form.Item label="Mô tả" name="desc">
                                 <Editor
+                                    fullpage_hide_in_source_view={true}
                                     apiKey="mn91e4l4u8nhtjz09fcrbsrtld9x9gb38zzjdol76hrxo623"
                                     onEditorChange={(newValue, editor) => {
                                         setValue(newValue);

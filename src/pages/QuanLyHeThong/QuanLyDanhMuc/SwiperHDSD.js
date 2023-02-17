@@ -3,7 +3,9 @@ import { Card, Popconfirm, Button, message, Space, Affix } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import * as menuServices from '~/services/menuService';
-import 'swiper/css';
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper";
 const { Meta } = Card;
 const SwiperHDSD = ({ dataSlideHDSD, ...props }) => {
     const confirmDelete = (e) => {
@@ -27,8 +29,8 @@ const SwiperHDSD = ({ dataSlideHDSD, ...props }) => {
             {dataSlideHDSD.map((e) => {
                 const randomNumber = Math.floor(Math.random() * 100);
                 return (
-					<Affix offsetTop={320} onChange={(affixed) => console.log(affixed)}>aaaa
-                    <SwiperSlide key={e.id}>
+					<Affix offsetTop={320} onChange={(affixed) => console.log(affixed)}>
+                    <SwiperSlide key={e.id}  navigation={true} modules={[Navigation]} className="mySwiper">
                         Stepssss: {e.step}
                         <Space wrap>
                             <Popconfirm
